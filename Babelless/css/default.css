@@ -1,0 +1,91 @@
+﻿html {
+    overflow-y: auto;
+}
+body {
+    background-color: #1D1D1D;
+    color: #DEDEDE;
+}
+select {
+    min-width: inherit;
+}
+
+.title, .content {
+    box-sizing: border-box;
+}
+
+.title {
+    padding: 60px 80px 40px 80px;
+    color: black;
+    background-color: #BEBEBE;
+}
+.content {
+    padding: 40px 80px 60px 80px;
+    font-size: 20px;
+}
+.content h4 {
+    margin-left: 10px;
+}
+
+@media (max-width: 500px) {
+    .title {
+        padding: 60px 40px 40px 40px;
+    }
+    .content {
+        padding: 40px 40px 60px 40px;
+    }
+}
+
+h1 {
+    font-size: 56px;
+    font-weight: lighter;
+    line-height: 40px;
+    margin-bottom: 20px;
+}
+
+.stackcolumn {
+    display: flex;
+    flex-direction: column;
+}
+.stackrow {
+    display: flex;
+    flex-direction: row;
+}
+
+.stack-aligncenter {
+    align-items: center;
+}
+
+.highest-block {
+    flex-wrap: wrap;
+}
+.highest-block > * {
+    margin: 10px;
+}
+
+label input[type=text] {
+    margin-left: 10px;
+}
+
+input[type=text], input[type=button] {
+    font-size: 20px;
+}
+input[type=button] {
+    margin: 10px;
+}
+
+
+.feature-checkbox {
+    font-size: 30px;
+    font-weight: lighter;
+    margin-top: 60px;
+    margin-bottom: 20px;
+}
+    .feature-checkbox input[type=checkbox] {
+        width: 30px;
+        height: 30px;
+        margin-right: 10px;
+    }
+
+.hidden {
+    display: none;
+}

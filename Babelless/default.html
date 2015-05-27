@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Babelless</title>
+
+    <!-- WinJS references -->
+    <!-- To get the latest version of WinJS, go to: http://go.microsoft.com/fwlink/?LinkId=533245 -->
+    <link href="WinJS/css/ui-dark.css" rel="stylesheet" />
+    <script src="WinJS/js/WinJS.js"></script>
+
+    <!-- Babelless references -->
+    <link href="/css/default.css" rel="stylesheet" />
+    <script src="/js/default.js"></script>
+    <script src="/js/babelless.js"></script>
+</head>
+<body>
+    <div class="title">
+        <h1>Babelless</h1>
+        <h3>A transcoder to break text encoding fragmentation</h3>
+    </div>
+    <div class="content">
+        <input type="button" id="filePickerButton" value="Convert files" />
+        <label class="stackrow stack-aligncenter feature-checkbox"><input type="checkbox" /> Transcode</label>
+        <div class="stackrow highest-block">
+            <div class="stackcolumn">
+                The files are written in:
+                <select></select>
+                I want to rewrite them in:
+                <select></select>
+            </div>
+            <div class="stackcolumn">
+                Display encoding names by:
+                <label class="stackrow stack-aligncenter"><input type="radio" name="encodingDisplay" value="longName" /> Long name</label>
+                <label class="stackrow stack-aligncenter"><input type="radio" name="encodingDisplay" value="shortName" /> Short name</label>
+                <label class="stackrow stack-aligncenter"><input type="radio" name="encodingDisplay" value="codePage" /> Code page</label>
+            </div>
+        </div>
+
+        <label class="stackrow stack-aligncenter feature-checkbox"><input type="checkbox" /> Kanji</label>
+        <h4>Some encoding methods don't support Japanese Shinjitai (新字体) so their content sometimes have Kyujitai (旧字体) characters instead. Use this to restore them.</h4>
+        <div class="highest-block">
+            <div class="stackcolumn">
+                <label class="stackrow stack-aligncenter"><input type="radio" name="kanjiConversion" /> Kyujitai -> Shinjitai</label>
+                <label class="stackrow stack-aligncenter"><input type="radio" name="kanjiConversion" /> Shinjitai -> Kyujitai</label>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
