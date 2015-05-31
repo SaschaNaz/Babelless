@@ -1,4 +1,4 @@
-var FileOpenPicker = Windows.Storage.Pickers.FileOpenPicker;
+﻿var FileOpenPicker = Windows.Storage.Pickers.FileOpenPicker;
 var MessageDialog = Windows.UI.Popups.MessageDialog;
 var UICommand = Windows.UI.Popups.UICommand;
 var BasicProperties = Windows.Storage.FileProperties.BasicProperties;
@@ -38,14 +38,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     var bytes = new Array(stream.size);
                     return reader.loadAsync(stream.size).then(function () {
                         reader.readBytes(bytes);
-                        bytes = EncodingNETBridge.Bridge.convert("shift_jis", "utf-16", bytes);
-                        reader.dispose();
+                        bytes = libiconv.convert(bytes, "euc-kr", "utf-16");
                         stream.seek(0);
+                        stream.size = bytes.length;
                         // TODO: insert BOM
                         writer.writeBytes(bytes);
                         return writer.storeAsync();
                     }).then(function () { return stream.close(); });
-                }); })).then(function () { return new MessageDialog("Completed the conversion of " + files.length + " file(s)."); });
+                }); })).then(function () { return new MessageDialog("Completed the conversion of " + files.length + " file(s).").showAsync(); });
             });
         });
     });

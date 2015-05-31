@@ -1,0 +1,6 @@
+[submodule "Babelless/submodules/iconvjs"]
+	path = Babelless/submodules/iconvjs
+	url = https://github.com/Schibum/iconv.js.git
+[submodule "Babelless/submodules/libiconvjs"]
+	path = Babelless/submodules/libiconvjs
+	url = https://github.com/SaschaNaz/libiconv.js.git

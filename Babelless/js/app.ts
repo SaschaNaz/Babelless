@@ -47,14 +47,14 @@ document.addEventListener("DOMContentLoaded", () => {
                             let bytes = new Array<number>(stream.size);
                             return reader.loadAsync(stream.size).then(() => {
                                 reader.readBytes(bytes);
-                                bytes = EncodingNETBridge.Bridge.convert("shift_jis", "utf-16", bytes);
-                                reader.dispose();
+                                bytes = libiconv.convert(bytes, "euc-kr", "utf-16");
                                 stream.seek(0);
+                                stream.size = bytes.length;
                                 // TODO: insert BOM
                                 writer.writeBytes(bytes);
                                 return writer.storeAsync();
                             }).then(() => stream.close());
-                        }))).then(() =>new MessageDialog(`Completed the conversion of ${files.length} file(s).`));
+                        }))).then(() => new MessageDialog(`Completed the conversion of ${files.length} file(s).`).showAsync());
                     });
             })
     })
