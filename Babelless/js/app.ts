@@ -41,20 +41,28 @@ document.addEventListener("DOMContentLoaded", () => {
                         if (result.id === "no")
                             return;
 
-                        return Promise.all(files.map((file) => file.openAsync(FileAccessMode.readWrite).then((stream) => {
-                            let reader = new DataReader(stream);
-                            let writer = new DataWriter(stream);
-                            let bytes = new Array<number>(stream.size);
-                            return reader.loadAsync(stream.size).then(() => {
-                                reader.readBytes(bytes);
-                                bytes = libiconv.convert(bytes, "euc-kr", "utf-16");
-                                stream.seek(0);
-                                stream.size = bytes.length;
-                                // TODO: insert BOM
-                                writer.writeBytes(bytes);
-                                return writer.storeAsync();
-                            }).then(() => stream.close());
-                        }))).then(() => new MessageDialog(`Completed the conversion of ${files.length} file(s).`).showAsync());
+                        return Promise.all(files.map((file) => file.openAsync(FileAccessMode.readWrite)
+                            .then((stream) => {
+                                let reader = new DataReader(stream);
+                                let writer = new DataWriter(stream);
+                                let bytes = new Array<number>(stream.size);
+                                return reader.loadAsync(stream.size).then(() => {
+                                    reader.readBytes(bytes);
+                                    bytes = libiconv.convert(bytes, "euc-kr", "utf-16");
+                                    stream.seek(0);
+                                    stream.size = bytes.length;
+                                    // Potential TODO: insert BOM when we don't use libiconv
+                                    writer.writeBytes(bytes);
+                                    return writer.storeAsync();
+                                }).then(() => stream.close());
+                            })))
+                            .then(() => new MessageDialog(`Completed the conversion of ${files.length} file(s).`).showAsync())
+                            .catch((err) => {
+                                if ((<libiconv.IconvError>err).code === "EILSEQ" && true) {
+                                    // TODO: Warn if EILSEQ occured and warning option is turned on.
+                                }
+                                new MessageDialog(`Error occurred: ${err.message || err}`).showAsync();
+                            });
                     });
             })
     })
