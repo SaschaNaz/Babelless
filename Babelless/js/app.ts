@@ -10,6 +10,7 @@ import IVectorView = Windows.Foundation.Collections.IVectorView;
 import FileAccessMode = Windows.Storage.FileAccessMode;
 import DataReader = Windows.Storage.Streams.DataReader;
 import DataWriter = Windows.Storage.Streams.DataWriter;
+import IRandomAccessStream = Windows.Storage.Streams.IRandomAccessStream;
 
 document.addEventListener("DOMContentLoaded", () => {
     filePickerButton.addEventListener("click", () => {
@@ -41,24 +42,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         if (result.id === "no")
                             return;
 
-                        return Promise.all(files.map((file) => file.openAsync(FileAccessMode.readWrite)
-                            .then((stream) => {
-                                let reader = new DataReader(stream);
-                                let writer = new DataWriter(stream);
-                                let bytes = new Array<number>(stream.size);
-                                return reader.loadAsync(stream.size).then(() => {
-                                    reader.readBytes(bytes);
-                                    bytes = libiconv.convert(bytes, "euc-kr", "utf-16");
-                                    stream.seek(0);
-                                    stream.size = bytes.length;
-                                    // Potential TODO: insert BOM when we don't use libiconv
-                                    writer.writeBytes(bytes);
-                                    return writer.storeAsync();
-                                }).then(() => stream.close());
-                            })))
+                        return Promise.all(files.map((file) => iconvWrite(file, file, "euc-kr", "utf-16")))
                             .then(() => new MessageDialog(`Completed the conversion of ${files.length} file(s).`).showAsync())
                             .catch((err) => {
-                                if ((<libiconv.IconvError>err).code === "EILSEQ" && true) {
+                                if ((<libiconv.IconvError>err).code === "EILSEQ" && false) {
                                     // TODO: Warn if EILSEQ occured and warning option is turned on.
                                 }
                                 new MessageDialog(`Error occurred: ${err.message || err}`).showAsync();
@@ -67,3 +54,47 @@ document.addEventListener("DOMContentLoaded", () => {
             })
     })
 });
+
+/**
+Read text from input and write transcoded text to output.
+
+@param input Input file
+@param output Output file
+@param fromCode Text encoding method in input file
+@param toCode Text encoding method to be used in output file
+*/
+function iconvWrite(input: StorageFile, output: StorageFile, fromCode: string, toCode: string) {
+    let singleFile = input === output;
+
+    let openFile = singleFile
+        ? [ input.openAsync(FileAccessMode.readWrite) ]
+        : [ input.openAsync(FileAccessMode.read), output.openAsync(FileAccessMode.readWrite) ];
+    
+    return Promise.all(openFile)
+        .then((streams) => {
+            let inputStream: IRandomAccessStream;
+            let outputStream: IRandomAccessStream;
+            if (singleFile) {
+                inputStream = outputStream = streams[0];
+            }
+            else {
+                [inputStream, outputStream] = streams;
+            }
+
+            let reader = new DataReader(inputStream);
+            let writer = new DataWriter(outputStream);
+            let bytes = new Array<number>(inputStream.size);
+            return reader.loadAsync(inputStream.size).then(() => {
+                reader.readBytes(bytes);
+                bytes = libiconv.convert(bytes, "euc-kr", "utf-16");
+                outputStream.seek(0);
+                outputStream.size = bytes.length;
+                // Potential TODO: insert BOM when we don't use libiconv
+                writer.writeBytes(bytes);
+                return writer.storeAsync();
+            }).then(() => {
+                inputStream.close();
+                outputStream.close();
+            });
+        });
+}
