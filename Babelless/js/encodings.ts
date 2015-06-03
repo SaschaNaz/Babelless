@@ -154,7 +154,7 @@
 //]
 
 /*
-    Generated from libiconv iconv_open.3.html
+    Auto-generated from libiconv iconv_open.3.html
 
     (() => {
         let result = "var libiconvEncodings: string[] = [\r\n";

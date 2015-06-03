@@ -1,6 +1,9 @@
 ﻿declare var filePicker: HTMLInputElement;
 declare var filePickerButton: HTMLButtonElement;
 
+declare var inputEncodingSelect: HTMLSelectElement;
+declare var outputEncodingSelect: HTMLSelectElement;
+
 import FileOpenPicker = Windows.Storage.Pickers.FileOpenPicker;
 import MessageDialog = Windows.UI.Popups.MessageDialog;
 import UICommand = Windows.UI.Popups.UICommand;
@@ -20,6 +23,14 @@ interface IconvOptionBag {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    for (let select of [inputEncodingSelect, outputEncodingSelect]) {
+        for (let encoding of libiconvEncodings) {
+            let option = document.createElement("option");
+            option.textContent = encoding;
+            select.appendChild(option);
+        }
+    }
+
     filePickerButton.addEventListener("click", () => {
         let picker = new FileOpenPicker();
         picker.fileTypeFilter.push("*");
