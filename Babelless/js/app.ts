@@ -32,37 +32,47 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (!files.length)
                     return;
 
-                return Promise.all<BasicProperties>(files.map((file) => file.getBasicPropertiesAsync()))
-                    .then(getUserConfirmation)
-                    .then((response) => {
-                        if (response.id === "no")
-                            return;
-
-                        let warn = true;
-
-                        let convertTask: () => Promise<void> = () => Promise.all(files.map((file) => iconvWrite(file, file, { from: "utf-8", to: "ascii", ignore: !warn })))
-                            .then(() => new MessageDialog(`Completed the conversion of ${files.length} file(s).`).showAsync())
-                            .catch((err) => {
-                                if ((<libiconv.IconvError>err).code === "EILSEQ" && warn) {
-                                    // TODO: Warn if EILSEQ occured and warning option is turned on, and retry when user says ok.
-                                    let retryDialog = new MessageDialog("Conversion failed because of some illegal characters. Do you want to ignore them and retry?");
-                                    retryDialog.commands.push(new UICommand("Yes"));
-                                    retryDialog.commands.push(new UICommand("No", null, "no"));
-                                    return Promise.resolve(retryDialog.showAsync()).then((retryResponse) => {
-                                        if (retryResponse.id == "no")
-                                            return;
-                                        warn = false;
-                                        return convertTask();
-                                    });
-                                }
-                                new MessageDialog(`Error occurred: ${err.message || err}`).showAsync();
-                            });
-
-                        convertTask();
-                    });
+                return startConversionUserTaskWhenConfirmed(files, getIconvOptionBagFromUI());
             })
     })
 });
+
+function getIconvOptionBagFromUI() {
+    return <IconvOptionBag>{ from: "utf-8", to: "ascii", ignore: false };
+}
+
+function startConversionUserTaskWhenConfirmed(files: IVectorView<StorageFile>, options: IconvOptionBag) {
+    return Promise.all<BasicProperties>(files.map((file) => file.getBasicPropertiesAsync()))
+        .then(getUserConfirmation)
+        .then((response) => {
+            if (response.id === "no")
+                return;
+
+            startConversionUserTask(files, options);
+        });
+}
+
+function startConversionUserTask(files: IVectorView<StorageFile>, options: IconvOptionBag): Promise<void> {
+    return Promise.all(files.map((file) => iconvWrite(file, file, options)))
+        .then(() => new MessageDialog(`Completed the conversion of ${files.length} file(s).`).showAsync())
+        .catch((err) => {
+            if ((<libiconv.IconvError>err).code !== "EILSEQ" || options.ignore) {
+                new MessageDialog(`Error occurred: ${err.message || err}`).showAsync();
+            }
+
+            // TODO: Warn if EILSEQ occured with warning option turned on and retry when user says ok.
+            let retryDialog = new MessageDialog("Conversion failed because of some illegal characters. Do you want to ignore them and retry?");
+            retryDialog.commands.push(new UICommand("Yes"));
+            retryDialog.commands.push(new UICommand("No", null, "no"));
+            return Promise.resolve(retryDialog.showAsync()).then((retryResponse) => {
+                if (retryResponse.id == "no")
+                    return;
+                // Copy and assign
+                options = Object.assign({}, options, { ignore: true });
+                return startConversionUserTask(files, options);
+            });
+        });
+}
 
 
 /**

@@ -93,6 +93,7 @@
     <None Include="Babelless_TemporaryKey.pfx" />
     <TypeScriptCompile Include="submodules\encodingnetbridge.d.ts" />
     <TypeScriptCompile Include="submodules\es6-array.d.ts" />
+    <TypeScriptCompile Include="submodules\es6-object.d.ts" />
     <TypeScriptCompile Include="submodules\es6-promise.d.ts" />
     <TypeScriptCompile Include="submodules\libiconv.d.ts" />
     <TypeScriptCompile Include="submodules\winjs-2.0.d.ts" />
