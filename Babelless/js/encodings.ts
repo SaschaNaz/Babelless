@@ -152,3 +152,131 @@
 //    { codePage: 65000, name: "utf-7", displayName: "Unicode (UTF-7)" },
 //    { codePage: 65001, name: "utf-8", displayName: "Unicode (UTF-8)" },
 //]
+
+/*
+    Generated from libiconv iconv_open.3.html
+
+    (() => {
+        let result = "var libiconvEncodings: string[] = [\r\n";
+        let regex = /{\S+}/;
+        for (let item of Array.from(document.querySelectorAll("p[style='margin-left:22%;']")).slice(0, 10)) {
+            result += `// ${item.previousElementSibling.lastChild.textContent.trim() }\r\n`;
+            let initialSubitems = item.innerHTML.trim().replace(/ <br>\n/g, ', ').replace(/\n/g, ' ').split(', ');
+            let finalSubitems = [];
+            for (let initialSubitem of initialSubitems) {
+                let regexResult = regex.exec(initialSubitem);
+                if (!regexResult) {
+                    finalSubitems.push(initialSubitem);
+                    continue;
+                }
+                let sliceOuterPart = [initialSubitem.slice(0, regexResult.index), initialSubitem.slice(regexResult.index + regexResult[0].length)];
+                for (let subitemSplit of initialSubitem.slice(regexResult.index + 1, regexResult.index + regexResult[0].length - 1).split(',')) {
+                    finalSubitems.push(`${sliceOuterPart[0]}${subitemSplit}${sliceOuterPart[1]}`);
+                }
+            }
+            result += "  " + finalSubitems.map((finalSubitem) => `"${finalSubitem}"`).join(', \r\n  ') + ", \r\n";
+        }
+        return `${result}];`;
+    })();
+*/
+
+var libiconvEncodings: string[] = [
+// European languages
+    "ASCII",
+    "ISO−8859−1",
+    "ISO−8859−2",
+    "ISO−8859−3",
+    "ISO−8859−4",
+    "ISO−8859−5",
+    "ISO−8859−7",
+    "ISO−8859−9",
+    "ISO−8859−10",
+    "ISO−8859−13",
+    "ISO−8859−14",
+    "ISO−8859−15",
+    "ISO−8859−16",
+    "KOI8−R",
+    "KOI8−U",
+    "KOI8−RU",
+    "CP1250",
+    "CP1251",
+    "CP1252",
+    "CP1253",
+    "CP1254",
+    "CP1257",
+    "CP850",
+    "CP866",
+    "CP1131",
+    "MacRoman",
+    "MacCentralEurope",
+    "MacIceland",
+    "MacCroatian",
+    "MacRomania",
+    "MacCyrillic",
+    "MacUkraine",
+    "MacGreek",
+    "MacTurkish",
+    "Macintosh", 
+// Semitic languages
+    "ISO−8859−6",
+    "ISO−8859−8",
+    "CP1255",
+    "CP1256",
+    "CP862",
+    "MacHebrew",
+    "MacArabic", 
+// Japanese
+    "EUC−JP",
+    "SHIFT_JIS",
+    "CP932",
+    "ISO−2022−JP",
+    "ISO−2022−JP−2",
+    "ISO−2022−JP−1", 
+// Chinese
+    "EUC−CN",
+    "HZ",
+    "GBK",
+    "CP936",
+    "GB18030",
+    "EUC−TW",
+    "BIG5",
+    "CP950",
+    "BIG5−HKSCS",
+    "BIG5−HKSCS:2004",
+    "BIG5−HKSCS:2001",
+    "BIG5−HKSCS:1999",
+    "ISO−2022−CN",
+    "ISO−2022−CN−EXT", 
+// Armenian
+    "ARMSCII−8", 
+// Georgian
+    "Georgian−Academy",
+    "Georgian−PS", 
+// Laotian
+    "MuleLao−1",
+    "CP1133", 
+// Vietnamese
+    "VISCII",
+    "TCVN",
+    "CP1258", 
+// Platform specifics
+    "HP−ROMAN8",
+    "NEXTSTEP", 
+// Full Unicode
+    "UTF−8",
+    "UCS−2",
+    "UCS−2BE",
+    "UCS−2LE",
+    "UCS−4",
+    "UCS−4BE",
+    "UCS−4LE",
+    "UTF−16",
+    "UTF−16BE",
+    "UTF−16LE",
+    "UTF−32",
+    "UTF−32BE",
+    "UTF−32LE",
+    "UTF−7",
+    "C99",
+    "JAVA",
+];
