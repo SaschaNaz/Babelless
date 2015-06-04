@@ -154,13 +154,14 @@
 //]
 
 /*
-    Auto-generated from libiconv iconv_open.3.html
+//Auto-generated from libiconv iconv_open.3.html
 
-    (() => {
-        let result = "var libiconvEncodings: string[] = [\r\n";
-        let regex = /{\S+}/;
-        for (let item of Array.from(document.querySelectorAll("p[style='margin-left:22%;']")).slice(0, 10)) {
-            result += `// ${item.previousElementSibling.lastChild.textContent.trim() }\r\n`;
+(() => {
+    let result = "var libiconvEncodings: { [key: string]: string[] } = {\r\n";
+    let regex = /{\S+}/;
+    for (let item of Array.from(document.querySelectorAll("p[style='margin-left:22%;'], table")).slice(0, 12)) {
+        if (item instanceof HTMLParagraphElement) {
+            result += `  "${item.previousElementSibling.lastChild.textContent.trim() }": [\r\n`;
             let initialSubitems = item.innerHTML.trim().replace(/ <br>\n/g, ', ').replace(/\n/g, ' ').split(', ');
             let finalSubitems = [];
             for (let initialSubitem of initialSubitems) {
@@ -174,109 +175,145 @@
                     finalSubitems.push(`${sliceOuterPart[0]}${subitemSplit}${sliceOuterPart[1]}`);
                 }
             }
-            result += "  " + finalSubitems.map((finalSubitem) => `"${finalSubitem}"`).join(', \r\n  ') + ", \r\n";
+            result += `    ${finalSubitems.map((finalSubitem) => `"${finalSubitem}"`).join(',\r\n    ')}\r\n  ],\r\n`;
         }
-        return `${result}];`;
-    })();
+        else if (item instanceof HTMLTableElement) {
+            for (let row of Array.from(item.rows)) {
+                result += `  "${row.children[1].textContent.trim() }": [\r\n`;
+                let subitems = row.children[3].children[0].innerHTML.trim().split(', ');
+                result += `    ${subitems.map((subitem) => `"${subitem}"`).join(',\r\n    ')}\r\n  ],\r\n`; 
+            }
+        }
+    }
+    return `${result}};`.replace(/−/g, '-');
+})();
 */
 
-var libiconvEncodings: string[] = [
-// European languages
-    "ASCII",
-    "ISO−8859−1",
-    "ISO−8859−2",
-    "ISO−8859−3",
-    "ISO−8859−4",
-    "ISO−8859−5",
-    "ISO−8859−7",
-    "ISO−8859−9",
-    "ISO−8859−10",
-    "ISO−8859−13",
-    "ISO−8859−14",
-    "ISO−8859−15",
-    "ISO−8859−16",
-    "KOI8−R",
-    "KOI8−U",
-    "KOI8−RU",
-    "CP1250",
-    "CP1251",
-    "CP1252",
-    "CP1253",
-    "CP1254",
-    "CP1257",
-    "CP850",
-    "CP866",
-    "CP1131",
-    "MacRoman",
-    "MacCentralEurope",
-    "MacIceland",
-    "MacCroatian",
-    "MacRomania",
-    "MacCyrillic",
-    "MacUkraine",
-    "MacGreek",
-    "MacTurkish",
-    "Macintosh", 
-// Semitic languages
-    "ISO−8859−6",
-    "ISO−8859−8",
-    "CP1255",
-    "CP1256",
-    "CP862",
-    "MacHebrew",
-    "MacArabic", 
-// Japanese
-    "EUC−JP",
-    "SHIFT_JIS",
-    "CP932",
-    "ISO−2022−JP",
-    "ISO−2022−JP−2",
-    "ISO−2022−JP−1", 
-// Chinese
-    "EUC−CN",
-    "HZ",
-    "GBK",
-    "CP936",
-    "GB18030",
-    "EUC−TW",
-    "BIG5",
-    "CP950",
-    "BIG5−HKSCS",
-    "BIG5−HKSCS:2004",
-    "BIG5−HKSCS:2001",
-    "BIG5−HKSCS:1999",
-    "ISO−2022−CN",
-    "ISO−2022−CN−EXT", 
-// Armenian
-    "ARMSCII−8", 
-// Georgian
-    "Georgian−Academy",
-    "Georgian−PS", 
-// Laotian
-    "MuleLao−1",
-    "CP1133", 
-// Vietnamese
-    "VISCII",
-    "TCVN",
-    "CP1258", 
-// Platform specifics
-    "HP−ROMAN8",
-    "NEXTSTEP", 
-// Full Unicode
-    "UTF−8",
-    "UCS−2",
-    "UCS−2BE",
-    "UCS−2LE",
-    "UCS−4",
-    "UCS−4BE",
-    "UCS−4LE",
-    "UTF−16",
-    "UTF−16BE",
-    "UTF−16LE",
-    "UTF−32",
-    "UTF−32BE",
-    "UTF−32LE",
-    "UTF−7",
-    "C99",
-    "JAVA",
-];
+var libiconvEncodings: { [key: string]: string[] } = {
+    "European languages": [
+        "ASCII",
+        "ISO-8859-1",
+        "ISO-8859-2",
+        "ISO-8859-3",
+        "ISO-8859-4",
+        "ISO-8859-5",
+        "ISO-8859-7",
+        "ISO-8859-9",
+        "ISO-8859-10",
+        "ISO-8859-13",
+        "ISO-8859-14",
+        "ISO-8859-15",
+        "ISO-8859-16",
+        "KOI8-R",
+        "KOI8-U",
+        "KOI8-RU",
+        "CP1250",
+        "CP1251",
+        "CP1252",
+        "CP1253",
+        "CP1254",
+        "CP1257",
+        "CP850",
+        "CP866",
+        "CP1131",
+        "MacRoman",
+        "MacCentralEurope",
+        "MacIceland",
+        "MacCroatian",
+        "MacRomania",
+        "MacCyrillic",
+        "MacUkraine",
+        "MacGreek",
+        "MacTurkish",
+        "Macintosh"
+    ],
+    "Semitic languages": [
+        "ISO-8859-6",
+        "ISO-8859-8",
+        "CP1255",
+        "CP1256",
+        "CP862",
+        "MacHebrew",
+        "MacArabic"
+    ],
+    "Japanese": [
+        "EUC-JP",
+        "SHIFT_JIS",
+        "CP932",
+        "ISO-2022-JP",
+        "ISO-2022-JP-2",
+        "ISO-2022-JP-1"
+    ],
+    "Chinese": [
+        "EUC-CN",
+        "HZ",
+        "GBK",
+        "CP936",
+        "GB18030",
+        "EUC-TW",
+        "BIG5",
+        "CP950",
+        "BIG5-HKSCS",
+        "BIG5-HKSCS:2004",
+        "BIG5-HKSCS:2001",
+        "BIG5-HKSCS:1999",
+        "ISO-2022-CN",
+        "ISO-2022-CN-EXT"
+    ],
+    "Korean": [
+        "EUC-KR",
+        "CP949",
+        "ISO-2022-KR",
+        "JOHAB"
+    ],
+    "Armenian": [
+        "ARMSCII-8"
+    ],
+    "Georgian": [
+        "Georgian-Academy",
+        "Georgian-PS"
+    ],
+    "Tajik": [
+        "KOI8-T"
+    ],
+    "Kazakh": [
+        "PT154",
+        "RK1048"
+    ],
+    "Thai": [
+        "TIS-620",
+        "CP874",
+        "MacThai"
+    ],
+    "Laotian": [
+        "MuleLao-1",
+        "CP1133"
+    ],
+    "Vietnamese": [
+        "VISCII",
+        "TCVN",
+        "CP1258"
+    ],
+    "Platform specifics": [
+        "HP-ROMAN8",
+        "NEXTSTEP"
+    ],
+    "Full Unicode": [
+        "UTF-8",
+        "UCS-2",
+        "UCS-2BE",
+        "UCS-2LE",
+        "UCS-4",
+        "UCS-4BE",
+        "UCS-4LE",
+        "UTF-16",
+        "UTF-16BE",
+        "UTF-16LE",
+        "UTF-32",
+        "UTF-32BE",
+        "UTF-32LE",
+        "UTF-7",
+        "C99",
+        "JAVA"
+    ],
+};

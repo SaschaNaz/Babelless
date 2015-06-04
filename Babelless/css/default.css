@@ -8,6 +8,9 @@ body {
 select {
     min-width: inherit;
 }
+optgroup {
+    color: #8E8E8E;
+}
 
 .title, .content {
     box-sizing: border-box;

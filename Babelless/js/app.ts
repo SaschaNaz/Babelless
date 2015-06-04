@@ -24,10 +24,15 @@ interface IconvOptionBag {
 
 document.addEventListener("DOMContentLoaded", () => {
     for (let select of [inputEncodingSelect, outputEncodingSelect]) {
-        for (let encoding of libiconvEncodings) {
-            let option = document.createElement("option");
-            option.textContent = encoding;
-            select.appendChild(option);
+        for (let encodingGroup in libiconvEncodings) {
+            let optgroup = document.createElement("optgroup");
+            optgroup.label = encodingGroup;
+            for (let encoding of libiconvEncodings[encodingGroup]) {
+                let option = document.createElement("option");
+                option.textContent = option.value = encoding;
+                optgroup.appendChild(option);
+            }
+            select.appendChild(optgroup);
         }
     }
 
@@ -49,7 +54,11 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function getIconvOptionBagFromUI() {
-    return <IconvOptionBag>{ from: "utf-8", to: "ascii", ignore: false };
+    return <IconvOptionBag>{ from: getSelectedText(inputEncodingSelect), to: getSelectedText(outputEncodingSelect), ignore: false };
+}
+
+function getSelectedText(select: HTMLSelectElement) {
+    return Array.from(select.getElementsByTagName("option")).filter((option) => option.selected)[0].value
 }
 
 function startConversionUserTaskWhenConfirmed(files: IVectorView<StorageFile>, options: IconvOptionBag) {
