@@ -92,6 +92,8 @@
     <Content Include="WinJS\js\WinJS.intellisense-setup.js" />
     <None Include="Babelless_TemporaryKey.pfx" />
     <TypeScriptCompile Include="js\kanjiconv.ts" />
+    <TypeScriptCompile Include="js\uiconnection.ts" />
+    <TypeScriptCompile Include="js\util.ts" />
     <TypeScriptCompile Include="submodules\encodingnetbridge.d.ts" />
     <TypeScriptCompile Include="submodules\es6-array.d.ts" />
     <TypeScriptCompile Include="submodules\es6-object.d.ts" />

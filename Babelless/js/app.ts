@@ -1,17 +1,4 @@
-﻿declare var filePicker: HTMLInputElement;
-declare var filePickerButton: HTMLButtonElement;
-
-declare var transcodeCheckBox: HTMLInputElement;
-declare var inputEncodingSelect: HTMLSelectElement;
-declare var outputEncodingSelect: HTMLSelectElement;
-declare var transliterateCheckBox: HTMLInputElement;
-declare var warnCheckBox: HTMLInputElement;
-
-declare var kanjiCheckBox: HTMLInputElement;
-declare var kyuToShinRadioButton: HTMLInputElement;
-declare var shinToKyuRadioButton: HTMLInputElement;
-
-import FileOpenPicker = Windows.Storage.Pickers.FileOpenPicker;
+﻿import FileOpenPicker = Windows.Storage.Pickers.FileOpenPicker;
 import MessageDialog = Windows.UI.Popups.MessageDialog;
 import UICommand = Windows.UI.Popups.UICommand;
 import BasicProperties = Windows.Storage.FileProperties.BasicProperties;
@@ -46,39 +33,6 @@ interface BabellessSettingBag {
 }
 
 
-document.addEventListener("DOMContentLoaded", () => {
-    for (let select of [inputEncodingSelect, outputEncodingSelect]) {
-        for (let encodingGroup in libiconvEncodings) {
-            let optgroup = document.createElement("optgroup");
-            optgroup.label = encodingGroup;
-            for (let encoding of libiconvEncodings[encodingGroup]) {
-                let option = document.createElement("option");
-                option.textContent = option.value = encoding;
-                optgroup.appendChild(option);
-            }
-            select.appendChild(optgroup);
-        }
-    }
-
-    getStoredSettings().then(applySettingsToUI)
-
-    filePickerButton.addEventListener("click", () => {
-        let picker = new FileOpenPicker();
-        picker.fileTypeFilter.push("*");
-        let files: IVectorView<StorageFile>;
-
-        Promise.resolve(picker.pickMultipleFilesAsync())
-            .then((_files) => {
-                files = _files;
-
-                if (!files.length)
-                    return;
-
-                return startConversionUserTaskWhenConfirmed(files, getIconvOptionBagFromUI());
-            })
-    })
-});
-
 function getStoredSettings() {
     // TODO: store settings and get it back
     return Promise.resolve<BabellessSettingBag>({
@@ -96,68 +50,27 @@ function getStoredSettings() {
     });
 }
 
-function applySettingsToUI(storedSettings: BabellessSettingBag) {
-    if (storedSettings.transcode) {
-        transcodeCheckBox.checked = true;
-    }
-    selectByValue(inputEncodingSelect, storedSettings.transcodeSubSettings.from);
-    selectByValue(outputEncodingSelect, storedSettings.transcodeSubSettings.to);
-    if (storedSettings.transcodeSubSettings.transliterate) {
-        transliterateCheckBox.checked = true;
-    }
-    if (storedSettings.transcodeSubSettings.warn) {
-        warnCheckBox.checked = true;
-    }
+function startMainTaskWithFiles(files: IVectorView<StorageFile>) {
+    return getUserConfirmationAboutFiles(files)
+        .then(() => {
+            // TODO: if kanji selected: inputEncoding to Unicode to outputEncoding
 
-    if (storedSettings.kanji) {
-        kanjiCheckBox.checked = true;
-    }
-    if (storedSettings.kanjiSubSettings.kyuToShin) {
-        kyuToShinRadioButton.checked = true;
-    }
-    else {
-        shinToKyuRadioButton.checked = true;
-    }
+        });
 }
 
-function getSettingsFromUI() {
-    let settings: BabellessSettingBag = {
-        transcode: transcodeCheckBox.checked,
-        transcodeSubSettings: {
-            from: getSelectedText(inputEncodingSelect),
-            to: getSelectedText(outputEncodingSelect),
-            transliterate: transliterateCheckBox.checked,
-            warn: warnCheckBox.checked
-        },
-        kanji: kanjiCheckBox.checked,
-        kanjiSubSettings: {
-            kyuToShin: kyuToShinRadioButton.checked
-        }
+function getIconvOptionBagFromAppSettingBag(settings: BabellessSettingBag) {
+    return <IconvOptionBag>{
+        from: settings.transcodeSubSettings.from,
+        to: settings.transcodeSubSettings.to,
+        translit: settings.transcodeSubSettings.transliterate,
+        ignore: !settings.transcodeSubSettings.warn
     };
 }
 
-function getIconvOptionBagFromUI() {
-    return <IconvOptionBag>{ from: getSelectedText(inputEncodingSelect), to: getSelectedText(outputEncodingSelect), ignore: false };
-}
-
-function getSelectedText(select: HTMLSelectElement) {
-    return Array.from(select.getElementsByTagName("option")).filter((option) => option.selected)[0].value
-}
-
-function selectByValue(select: HTMLSelectElement, value: string) {
-    for (let option of Array.from(select.getElementsByTagName("option"))) {
-        if (option.value === value) {
-            option.selected = true;
-            break;
-        }
-    }
-}
-
 function startConversionUserTaskWhenConfirmed(files: IVectorView<StorageFile>, options: IconvOptionBag) {
-    return Promise.all<BasicProperties>(files.map((file) => file.getBasicPropertiesAsync()))
-        .then(getUserConfirmation)
-        .then((response) => {
-            if (response.id === "no")
+    return getUserConfirmationAboutFiles(files)
+        .then((userAccepted) => {
+            if (!userAccepted)
                 return;
 
             startConversionUserTask(files, options);
@@ -172,17 +85,15 @@ function startConversionUserTask(files: IVectorView<StorageFile>, options: Iconv
                 new MessageDialog(`Error occurred: ${err.message || err}`).showAsync();
             }
 
-            // TODO: Warn if EILSEQ occured with warning option turned on and retry when user says ok.
-            let retryDialog = new MessageDialog("Conversion failed because of some illegal characters. Do you want to ignore them and retry?");
-            retryDialog.commands.push(new UICommand("Yes"));
-            retryDialog.commands.push(new UICommand("No", null, "no"));
-            return Promise.resolve(retryDialog.showAsync()).then((retryResponse) => {
-                if (retryResponse.id == "no")
-                    return;
-                // Copy and assign
-                options = Object.assign({}, options, { ignore: true });
-                return startConversionUserTask(files, options);
-            });
+            // Warn if EILSEQ occured with warning option turned on and retry when user says ok.
+            return Promise.resolve(util.showYesNoDialog("Conversion failed because of some illegal characters. Do you want to ignore them and retry?"))
+                .then((userAccepted) => {
+                    if (!userAccepted)
+                        return;
+                    // Copy and assign
+                    options = Object.assign({}, options, { ignore: true });
+                    return startConversionUserTask(files, options);
+                });
         });
 }
 
@@ -190,19 +101,19 @@ function startConversionUserTask(files: IVectorView<StorageFile>, options: Iconv
 /**
 Check files and get user confirmation. Command ID will be 'no' if user rejected. 
 
-@param propertiesArray Array of BasicProperties objects from files
+@param files Input files
 */
-function getUserConfirmation(propertiesArray: BasicProperties[]) {
-    // 4 MiB check
-    let containsBigFile = !!propertiesArray.filter((properties) => properties.size > 4194304).length;
-    let dialog: MessageDialog;
-    if (containsBigFile)
-        dialog = new MessageDialog("Warning: One of the file is bigger than 4 MiB, which may be a non-text file. Will you continue?");
-    else
-        dialog = new MessageDialog("Conversion will start immediately. Will you continue?");
-    dialog.commands.push(new UICommand("Yes"));
-    dialog.commands.push(new UICommand("No", null, "no"));
-    return dialog.showAsync();
+function getUserConfirmationAboutFiles(files: IVectorView<StorageFile>) {
+    return Promise.all<BasicProperties>(files.map((file) => file.getBasicPropertiesAsync()))
+        .then((propertiesArray) => {
+            // 4 MiB check
+            let containsBigFile = !!propertiesArray.filter((properties) => properties.size > 4194304).length;
+            let dialog: MessageDialog;
+            if (containsBigFile)
+                return util.showYesNoDialog("Warning: One of the file is bigger than 4 MiB, which may be a non-text file. Will you continue?");
+            else
+                return util.showYesNoDialog("Conversion will start immediately. Will you continue?");
+        });
 }
 
 
