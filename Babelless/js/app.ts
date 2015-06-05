@@ -1,8 +1,15 @@
 ﻿declare var filePicker: HTMLInputElement;
 declare var filePickerButton: HTMLButtonElement;
 
+declare var transcodeCheckBox: HTMLInputElement;
 declare var inputEncodingSelect: HTMLSelectElement;
 declare var outputEncodingSelect: HTMLSelectElement;
+declare var transliterateCheckBox: HTMLInputElement;
+declare var warnCheckBox: HTMLInputElement;
+
+declare var kanjiCheckBox: HTMLInputElement;
+declare var kyuToShinRadioButton: HTMLInputElement;
+declare var shinToKyuRadioButton: HTMLInputElement;
 
 import FileOpenPicker = Windows.Storage.Pickers.FileOpenPicker;
 import MessageDialog = Windows.UI.Popups.MessageDialog;
@@ -16,11 +23,28 @@ import DataWriter = Windows.Storage.Streams.DataWriter;
 import IRandomAccessStream = Windows.Storage.Streams.IRandomAccessStream;
 
 interface IconvOptionBag {
+    /** Text encoding method in input file */
     from: string;
+    /** Text encoding method to be used in output file */
     to: string;
     translit?: boolean;
     ignore?: boolean;
 }
+
+interface BabellessSettingBag {
+    transcode: boolean;
+    transcodeSubSettings: {
+        from: string;
+        to: string;
+        transliterate: boolean;
+        warn: boolean;
+    };
+    kanji: boolean;
+    kanjiSubSettings: {
+        kyuToShin: boolean;
+    }
+}
+
 
 document.addEventListener("DOMContentLoaded", () => {
     for (let select of [inputEncodingSelect, outputEncodingSelect]) {
@@ -35,6 +59,8 @@ document.addEventListener("DOMContentLoaded", () => {
             select.appendChild(optgroup);
         }
     }
+
+    getStoredSettings().then(applySettingsToUI)
 
     filePickerButton.addEventListener("click", () => {
         let picker = new FileOpenPicker();
@@ -53,12 +79,78 @@ document.addEventListener("DOMContentLoaded", () => {
     })
 });
 
+function getStoredSettings() {
+    // TODO: store settings and get it back
+    return Promise.resolve<BabellessSettingBag>({
+        transcode: true,
+        transcodeSubSettings: {
+            from: "EUC-KR",
+            to: "UTF-8",
+            transliterate: false,
+            warn: true
+        },
+        kanji: false,
+        kanjiSubSettings: {
+            kyuToShin: true
+        }
+    });
+}
+
+function applySettingsToUI(storedSettings: BabellessSettingBag) {
+    if (storedSettings.transcode) {
+        transcodeCheckBox.checked = true;
+    }
+    selectByValue(inputEncodingSelect, storedSettings.transcodeSubSettings.from);
+    selectByValue(outputEncodingSelect, storedSettings.transcodeSubSettings.to);
+    if (storedSettings.transcodeSubSettings.transliterate) {
+        transliterateCheckBox.checked = true;
+    }
+    if (storedSettings.transcodeSubSettings.warn) {
+        warnCheckBox.checked = true;
+    }
+
+    if (storedSettings.kanji) {
+        kanjiCheckBox.checked = true;
+    }
+    if (storedSettings.kanjiSubSettings.kyuToShin) {
+        kyuToShinRadioButton.checked = true;
+    }
+    else {
+        shinToKyuRadioButton.checked = true;
+    }
+}
+
+function getSettingsFromUI() {
+    let settings: BabellessSettingBag = {
+        transcode: transcodeCheckBox.checked,
+        transcodeSubSettings: {
+            from: getSelectedText(inputEncodingSelect),
+            to: getSelectedText(outputEncodingSelect),
+            transliterate: transliterateCheckBox.checked,
+            warn: warnCheckBox.checked
+        },
+        kanji: kanjiCheckBox.checked,
+        kanjiSubSettings: {
+            kyuToShin: kyuToShinRadioButton.checked
+        }
+    };
+}
+
 function getIconvOptionBagFromUI() {
     return <IconvOptionBag>{ from: getSelectedText(inputEncodingSelect), to: getSelectedText(outputEncodingSelect), ignore: false };
 }
 
 function getSelectedText(select: HTMLSelectElement) {
     return Array.from(select.getElementsByTagName("option")).filter((option) => option.selected)[0].value
+}
+
+function selectByValue(select: HTMLSelectElement, value: string) {
+    for (let option of Array.from(select.getElementsByTagName("option"))) {
+        if (option.value === value) {
+            option.selected = true;
+            break;
+        }
+    }
 }
 
 function startConversionUserTaskWhenConfirmed(files: IVectorView<StorageFile>, options: IconvOptionBag) {
@@ -120,8 +212,7 @@ Read text from input and write transcoded text to output.
 
 @param input Input file
 @param output Output file
-@param fromCode Text encoding method in input file
-@param toCode Text encoding method to be used in output file
+@param options Options for encoding conversion
 */
 function iconvWrite(input: StorageFile, output: StorageFile, options: IconvOptionBag) {
     let singleFile = input === output;

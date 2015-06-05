@@ -24,7 +24,7 @@
     </div>
     <div class="content">
         <input type="button" id="filePickerButton" value="Convert files" />
-        <label class="stackrow stack-aligncenter feature-checkbox"><input type="checkbox" /> Transcode</label>
+        <label class="stackrow stack-aligncenter feature-checkbox"><input type="checkbox" id="transcodeCheckBox" /> Transcode</label>
         <div class="stackrow highest-block">
             <div class="stackcolumn">
                 The files are written in:
@@ -40,17 +40,17 @@
             </div>-->
             <div class="stackcolumn">
                 Transcoding options:
-                <label class="stackrow stack-aligncenter"><input type="checkbox" /> Try transliterating when there is no match</label>
-                <label class="stackrow stack-aligncenter"><input type="checkbox" /> Warn when there is no match available</label>
+                <label class="stackrow stack-aligncenter"><input type="checkbox" id="transliterateCheckBox" /> Try transliterating when there is no match</label>
+                <label class="stackrow stack-aligncenter"><input type="checkbox" id="warnCheckBox" /> Warn when there is no match available</label>
             </div>
         </div>
 
-        <label class="stackrow stack-aligncenter feature-checkbox"><input type="checkbox" /> Kanji</label>
+        <label class="stackrow stack-aligncenter feature-checkbox"><input type="checkbox" id="kanjiCheckBox" /> Kanji</label>
         <h4>Some encoding methods don't support Japanese Shinjitai (新字体) so their content sometimes have Kyujitai (旧字体) characters instead. Use this to restore them.</h4>
         <div class="highest-block">
             <div class="stackcolumn">
-                <label class="stackrow stack-aligncenter"><input type="radio" name="kanjiConversion" /> Kyujitai -> Shinjitai</label>
-                <label class="stackrow stack-aligncenter"><input type="radio" name="kanjiConversion" /> Shinjitai -> Kyujitai</label>
+                <label class="stackrow stack-aligncenter"><input type="radio" name="kanjiConversion" id="kyuToShinRadioButton" /> Kyujitai -> Shinjitai</label>
+                <label class="stackrow stack-aligncenter"><input type="radio" name="kanjiConversion" id="shinToKyuRadioButton" /> Shinjitai -> Kyujitai</label>
             </div>
         </div>
     </div>

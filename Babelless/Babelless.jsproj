@@ -37,7 +37,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>61a7b577-53e8-4692-93d5-7d9af7bf5837</ProjectGuid>
-    <TypeScriptToolsVersion>1.4</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>1.5</TypeScriptToolsVersion>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <TypeScriptNoImplicitAny>true</TypeScriptNoImplicitAny>
@@ -91,6 +91,7 @@
     <Content Include="WinJS\js\WinJS.intellisense.js" />
     <Content Include="WinJS\js\WinJS.intellisense-setup.js" />
     <None Include="Babelless_TemporaryKey.pfx" />
+    <TypeScriptCompile Include="js\kanjiconv.ts" />
     <TypeScriptCompile Include="submodules\encodingnetbridge.d.ts" />
     <TypeScriptCompile Include="submodules\es6-array.d.ts" />
     <TypeScriptCompile Include="submodules\es6-object.d.ts" />
