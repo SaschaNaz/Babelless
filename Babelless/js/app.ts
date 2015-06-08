@@ -99,9 +99,10 @@ function startConversionUserTask(files: IVectorView<StorageFile>, options: Iconv
 
 
 /**
-Check files and get user confirmation. Command ID will be 'no' if user rejected. 
+Check files and get user confirmation.
 
 @param files Input files
+@return User confirmed or not
 */
 function getUserConfirmationAboutFiles(files: IVectorView<StorageFile>) {
     return Promise.all<BasicProperties>(files.map((file) => file.getBasicPropertiesAsync()))
@@ -128,42 +129,28 @@ Read text from input and write transcoded text to output.
 function iconvWrite(input: StorageFile, output: StorageFile, options: IconvOptionBag) {
     let singleFile = input === output;
 
-    let openFile = singleFile
-        ? [ input.openAsync(FileAccessMode.readWrite) ]
-        : [ input.openAsync(FileAccessMode.read), output.openAsync(FileAccessMode.readWrite) ];
+    let inputHandle: util.FileHandle;
+    let outputHandle: util.FileHandle;
+    if (singleFile) {
+        inputHandle = outputHandle = new util.FileHandle(input, FileAccessMode.readWrite);
+    }
+    else {
+        inputHandle = new util.FileHandle(input, FileAccessMode.read);
+        outputHandle = new util.FileHandle(output, FileAccessMode.readWrite);
+    }
+
+    let done = () => {
+        inputHandle.deactivate();
+        outputHandle.deactivate();
+    }
     
-    return Promise.all(openFile)
-        .then((streams) => {
-            let inputStream: IRandomAccessStream;
-            let outputStream: IRandomAccessStream;
-            if (singleFile) {
-                inputStream = outputStream = streams[0];
-            }
-            else {
-                [inputStream, outputStream] = streams;
-            }
-
-            let done = () => {
-                inputStream.close();
-                outputStream.close();
-            }
-
-            let reader = new DataReader(inputStream);
-            let writer = new DataWriter(outputStream);
-            let bytes = new Array<number>(inputStream.size);
-            return reader.loadAsync(inputStream.size).then(() => {
-                reader.readBytes(bytes);
-                bytes = libiconv.convert(bytes, options.from, getIconvOutputCodeString(options));
-                outputStream.seek(0);
-                outputStream.size = bytes.length;
-                // Potential TODO: insert BOM when we don't use libiconv
-                writer.writeBytes(bytes);
-                return writer.storeAsync();
-            }).then(done, (err) => {
-                done();
-                throw err;
-            });
-        });
+    return inputHandle.readAsArray().then((bytes) => {
+        bytes = libiconv.convert(bytes, options.from, getIconvOutputCodeString(options));
+        return outputHandle.overwrite(bytes);
+    }).then(done, (err) => {
+        done();
+        throw err;
+    });
 }
 
 function getIconvOutputCodeString(options: IconvOptionBag) {
