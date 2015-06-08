@@ -19,10 +19,10 @@ interface IconvOptionBag {
 }
 
 interface BabellessSettingBag {
+    baseEncoding: string;
     transcode: boolean;
     transcodeSubSettings: {
-        from: string;
-        to: string;
+        destinationEncoding: string;
         transliterate: boolean;
         warn: boolean;
     };
@@ -36,10 +36,10 @@ interface BabellessSettingBag {
 function getStoredSettings() {
     // TODO: store settings and get it back
     return Promise.resolve<BabellessSettingBag>({
+        baseEncoding: "EUC-KR",
         transcode: true,
         transcodeSubSettings: {
-            from: "EUC-KR",
-            to: "UTF-8",
+            destinationEncoding: "UTF-8",
             transliterate: false,
             warn: true
         },
@@ -54,14 +54,18 @@ function startMainTaskWithFiles(files: IVectorView<StorageFile>) {
     return getUserConfirmationAboutFiles(files)
         .then(() => {
             // TODO: if kanji selected: inputEncoding to Unicode to outputEncoding
-
+            // TODO: New FileHandle is here, now this should be easier to be implemented
+            let settings = UI.getSettingsFromUI();
+            if (settings.kanji) {
+            }
+            // (Fixed) Input encoding MUST always be specified to read files
         });
 }
 
 function getIconvOptionBagFromAppSettingBag(settings: BabellessSettingBag) {
     return <IconvOptionBag>{
-        from: settings.transcodeSubSettings.from,
-        to: settings.transcodeSubSettings.to,
+        from: settings.baseEncoding,
+        to: settings.transcodeSubSettings.destinationEncoding,
         translit: settings.transcodeSubSettings.transliterate,
         ignore: !settings.transcodeSubSettings.warn
     };

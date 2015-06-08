@@ -54,8 +54,8 @@ namespace UI {
         if (storedSettings.transcode) {
             transcodeCheckBox.checked = true;
         }
-        util.selectByValue(inputEncodingSelect, storedSettings.transcodeSubSettings.from);
-        util.selectByValue(outputEncodingSelect, storedSettings.transcodeSubSettings.to);
+        util.selectByValue(inputEncodingSelect, storedSettings.baseEncoding);
+        util.selectByValue(outputEncodingSelect, storedSettings.transcodeSubSettings.destinationEncoding);
         if (storedSettings.transcodeSubSettings.transliterate) {
             transliterateCheckBox.checked = true;
         }
@@ -76,10 +76,10 @@ namespace UI {
 
     export function getSettingsFromUI(): BabellessSettingBag {
         return {
+            baseEncoding: util.getSelectedText(inputEncodingSelect),
             transcode: transcodeCheckBox.checked,
             transcodeSubSettings: {
-                from: util.getSelectedText(inputEncodingSelect),
-                to: util.getSelectedText(outputEncodingSelect),
+                destinationEncoding: util.getSelectedText(outputEncodingSelect),
                 transliterate: transliterateCheckBox.checked,
                 warn: warnCheckBox.checked
             },

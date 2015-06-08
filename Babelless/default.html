@@ -24,14 +24,15 @@
     </div>
     <div class="content">
         <input type="button" id="filePickerButton" value="Convert files" />
+        <div class="highest-block">
+            The files are written in: <br />
+            <select id="inputEncodingSelect"></select>
+        </div>
+
         <label class="stackrow stack-aligncenter feature-checkbox"><input type="checkbox" id="transcodeCheckBox" /> Transcode</label>
-        <div class="stackrow highest-block">
-            <div class="stackcolumn">
-                The files are written in:
-                <select id="inputEncodingSelect"></select>
-                I want to rewrite them in:
-                <select id="outputEncodingSelect"></select>
-            </div>
+        <div class="highest-block">
+            I want to rewrite them in: <br />
+            <select id="outputEncodingSelect"></select>
             <!--<div class="stackcolumn">
                 Display encoding names by:
                 <label class="stackrow stack-aligncenter"><input type="radio" name="encodingDisplay" value="longName" /> Long name</label>
@@ -47,11 +48,9 @@
 
         <label class="stackrow stack-aligncenter feature-checkbox"><input type="checkbox" id="kanjiCheckBox" /> Kanji</label>
         <h4>Some encoding methods don't support Japanese Shinjitai (新字体) so their content sometimes have Kyujitai (旧字体) characters instead. Use this to restore them.</h4>
-        <div class="highest-block">
-            <div class="stackcolumn">
-                <label class="stackrow stack-aligncenter"><input type="radio" name="kanjiConversion" id="kyuToShinRadioButton" /> Kyujitai -> Shinjitai</label>
-                <label class="stackrow stack-aligncenter"><input type="radio" name="kanjiConversion" id="shinToKyuRadioButton" /> Shinjitai -> Kyujitai</label>
-            </div>
+        <div class="highest-block stackcolumn">
+            <label class="stackrow stack-aligncenter"><input type="radio" name="kanjiConversion" id="kyuToShinRadioButton" /> Kyujitai -> Shinjitai</label>
+            <label class="stackrow stack-aligncenter"><input type="radio" name="kanjiConversion" id="shinToKyuRadioButton" /> Shinjitai -> Kyujitai</label>
         </div>
     </div>
 </body>
